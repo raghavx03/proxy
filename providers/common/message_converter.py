@@ -133,9 +133,8 @@ class AnthropicToOpenAIConverter:
                 tool_content = get_block_attr(block, "content", "")
                 if isinstance(tool_content, list):
                     tool_content = "\n".join(
-                        item.get("text", str(item))
-                        if isinstance(item, dict)
-                        else str(item)
+                        item.get("text", str(item)) if isinstance(item, dict)
+                        else getattr(item, "text", str(item))
                         for item in tool_content
                     )
                 result.append(

@@ -11,7 +11,7 @@ class NimSettings(BaseModel):
     temperature: float = Field(1.0, ge=0.0)
     top_p: float = Field(1.0, ge=0.0, le=1.0)
     top_k: int = -1
-    max_tokens: int = Field(81920, ge=1)
+    max_tokens: int = Field(8000, ge=1)
     presence_penalty: float = Field(0.0, ge=-2.0, le=2.0)
     frequency_penalty: float = Field(0.0, ge=-2.0, le=2.0)
 
@@ -30,8 +30,8 @@ class NimSettings(BaseModel):
     chat_template: str | None = None
     request_id: str | None = None
 
-    reasoning_effort: Literal["low", "medium", "high"] = "high"
-    include_reasoning: bool = True
+    reasoning_effort: Literal["low", "medium", "high"] = "low"
+    include_reasoning: bool = False
 
     model_config = ConfigDict(extra="forbid")
 

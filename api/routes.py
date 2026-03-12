@@ -121,6 +121,24 @@ async def root(settings: Settings = Depends(get_settings)):
     }
 
 
+@router.get("/v1/models")
+async def list_models():
+    """List available models (required by Claude Code)."""
+    return {
+        "object": "list",
+        "data": [
+            {"id": "claude-opus-4-6", "object": "model", "created": 1709596800, "owned_by": "anthropic"},
+            {"id": "claude-sonnet-4-6", "object": "model", "created": 1709596800, "owned_by": "anthropic"},
+            {"id": "claude-haiku-4-5", "object": "model", "created": 1709596800, "owned_by": "anthropic"},
+            {"id": "claude-3-opus", "object": "model", "created": 1709596800, "owned_by": "anthropic"},
+            {"id": "claude-3-5-sonnet-20241022", "object": "model", "created": 1709596800, "owned_by": "anthropic"},
+            {"id": "claude-3-5-sonnet", "object": "model", "created": 1709596800, "owned_by": "anthropic"},
+            {"id": "claude-3-5-haiku-20241022", "object": "model", "created": 1709596800, "owned_by": "anthropic"},
+            {"id": "claude-3-haiku", "object": "model", "created": 1709596800, "owned_by": "anthropic"},
+        ]
+    }
+
+
 @router.get("/health")
 async def health():
     """Health check endpoint."""

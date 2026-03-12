@@ -38,6 +38,14 @@ def build_request_body(request_data: Any, nim: NimSettings) -> dict:
         max_tokens = min(max_tokens, nim.max_tokens)
     set_if_not_none(body, "max_tokens", max_tokens)
 
+    # Remove thinking blocks that Claude Code can't parse
+    body.pop("thinking", None)
+    body.pop("betas", None)
+
+    # Set default temperature if not provided
+    if "temperature" not in body:
+        body["temperature"] = 0.7
+
     # NIM-specific temperature/top_p: fall back to NIM defaults if request didn't set
     if body.get("temperature") is None and nim.temperature is not None:
         body["temperature"] = nim.temperature

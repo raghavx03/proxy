@@ -60,12 +60,12 @@ class Settings(BaseSettings):
     model_haiku: str | None = Field(default=None, validation_alias="MODEL_HAIKU")
 
     # ==================== Provider Rate Limiting ====================
-    provider_rate_limit: int = Field(default=40, validation_alias="PROVIDER_RATE_LIMIT")
+    provider_rate_limit: int = Field(default=100, validation_alias="PROVIDER_RATE_LIMIT")
     provider_rate_window: int = Field(
         default=60, validation_alias="PROVIDER_RATE_WINDOW"
     )
     provider_max_concurrency: int = Field(
-        default=5, validation_alias="PROVIDER_MAX_CONCURRENCY"
+        default=20, validation_alias="PROVIDER_MAX_CONCURRENCY"
     )
 
     # ==================== HTTP Client Timeouts ====================

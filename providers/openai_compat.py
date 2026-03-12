@@ -11,6 +11,24 @@ from loguru import logger
 from openai import AsyncOpenAI
 
 from providers.base import BaseProvider, ProviderConfig
+
+# Shared HTTP client for connection pooling
+_http_client: httpx.AsyncClient | None = None
+
+
+def _get_shared_http_client() -> httpx.AsyncClient:
+    """Get shared HTTP client with connection pooling."""
+    global _http_client
+    if _http_client is None:
+        _http_client = httpx.AsyncClient(
+            limits=httpx.Limits(
+                max_connections=100,
+                max_keepalive_connections=20,
+                keepalive_expiry=30.0,
+            ),
+            http2=True,
+        )
+    return _http_client
 from providers.common import (
     ContentType,
     HeuristicToolParser,
@@ -44,10 +62,13 @@ class OpenAICompatibleProvider(BaseProvider):
             rate_window=config.rate_window,
             max_concurrency=config.max_concurrency,
         )
+        # Use shared HTTP client for connection pooling
+        http_client = _get_shared_http_client()
         self._client = AsyncOpenAI(
             api_key=self._api_key,
             base_url=self._base_url,
             max_retries=0,
+            http_client=http_client,
             timeout=httpx.Timeout(
                 config.http_read_timeout,
                 connect=config.http_connect_timeout,
@@ -58,9 +79,8 @@ class OpenAICompatibleProvider(BaseProvider):
 
     async def cleanup(self) -> None:
         """Release HTTP client resources."""
-        client = getattr(self, "_client", None)
-        if client is not None:
-            await client.aclose()
+        # Don't close shared HTTP client - it's reused across providers
+        pass
 
     @abstractmethod
     def _build_request_body(self, request: Any) -> dict:
@@ -191,7 +211,15 @@ class OpenAICompatibleProvider(BaseProvider):
 
                     # Handle text content
                     if delta.content:
-                        for part in think_parser.feed(delta.content):
+                        _raw = delta.content
+                        if isinstance(_raw, list):
+                            _raw = "".join(
+                                item.get("text", str(item)) if isinstance(item, dict) else str(item)
+                                for item in _raw
+                            )
+                        elif not isinstance(_raw, str):
+                            _raw = str(_raw)
+                        for part in think_parser.feed(_raw):
                             if part.type == ContentType.THINKING:
                                 for event in sse.ensure_thinking_block():
                                     yield event
