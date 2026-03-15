@@ -1,1 +1,9 @@
 .env
+ghp_*
+*.save
+*.log
+.claude/.session_active
+.claude/.current_project
+.claude/.checkpoint.pid
+.claude/agents/*.json
+.claude/telemetry/*.log
